@@ -2,16 +2,22 @@ import { watchFile, unwatchFile } from 'fs'
 import chalk from 'chalk'
 import { fileURLToPath } from 'url'
 
-global.owner =   ['584125877491', 'Ado', true],
+global.owner = [
+  ['584125877491', 'wilker', true],
+  ['51956931649'],
+  ['156981591593126'],
+  ['595972314588'],
 ]
 
 global.mods = []
 global.prems = []
 
-global.namebot = '🌦 𝖬𝗂𝖼𝗁𝗂 𝖶𝖠-𝖡𝖮𝖳 🍁'
-global.packname = '🫟 𝖬𝖨𝖢𝖧𝖨 𝖡𝖮𝖳 🎋'
-global.author = '» 𝖬𝖺𝖽𝖾 𝗐𝗂𝗍𝗁 𝖻𝗒 𝗔𝗱𝗼'
-global.moneda = '𝗠𝗮𝗻𝗴𝗼𝘀 🦁'
+global.namebot = 'michi wabot 🧃'
+global.packname = 'michi-wa-bot 🥞'
+global.author = 'wilker | © 2025 🪸'
+global.moneda = '𝗠𝗮𝗻𝗴𝗼𝘀'
+
+
 
 global.libreria = 'Baileys'
 global.baileys = 'V 6.7.16'
@@ -22,7 +28,7 @@ global.yukiJadibts = true
 
 global.namecanal = '❇️'
 global.idcanal = '120363403739366547@newsletter'
-global.idcanal2 = '120363402159669836@newsletter'
+global.idcanal2 = '120363403739366547@newsletter'
 global.canal = 'https://whatsapp.com/channel/0029Vb5pM031CYoMvQi2I02D'
 global.canalreg = '120363402895449162@newsletter'
 
@@ -31,13 +37,11 @@ global.ch = {
 }
 
 global.multiplier = 69
-global.maxwarn = '2'
-
-
+global.maxwarn = 2
 
 let file = fileURLToPath(import.meta.url)
 watchFile(file, () => {
   unwatchFile(file)
   console.log(chalk.redBright("🔄 Se actualizó 'config.js'"))
-  import(`${file}?update=${Date.now()}`)
+  import(`file://${file}?update=${Date.now()}`)
 })
