@@ -1,13 +1,14 @@
+// gemini.js - Código básico solo con las funciones esenciales
 import fs from 'fs'
 import path from 'path'
 import { fileURLToPath } from 'url'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
-
 const UA = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/127.0.0.0 Safari/537.36'
 
 let _fetch = globalThis.fetch
+
 async function ensureFetch() {
   if (typeof _fetch === 'function') return _fetch
   const mod = await import('node-fetch')
@@ -15,8 +16,13 @@ async function ensureFetch() {
   return _fetch
 }
 
-function btoa2(str) { return Buffer.from(str, 'utf8').toString('base64') }
-function atob2(b64) { return Buffer.from(b64, 'base64').toString('utf8') }
+function btoa2(str) {
+  return Buffer.from(str, 'utf8').toString('base64')
+}
+
+function atob2(b64) {
+  return Buffer.from(b64, 'base64').toString('utf8')
+}
 
 function walkDeep(node, visit, depth = 0, maxDepth = 7) {
   if (depth > maxDepth) return
@@ -61,9 +67,8 @@ async function getAnonCookie() {
       body: 'f.req=%5B%5B%5B%22maGuAc%22%2C%22%5B0%5D%22%2Cnull%2C%22generic%22%5D%5D%5D&',
     }
   )
-
   const setCookie = r.headers.get('set-cookie')
-  if (!setCookie) throw new Error('Gemini no devolviÃ³ cookies (bloqueado o rate limit)')
+  if (!setCookie) throw new Error('Gemini no devolvió cookies')
   return setCookie.split(';')[0]
 }
 
@@ -137,21 +142,18 @@ function pickFirstString(parsed, accept) {
 
 function findInnerPayloadString(outer) {
   const candidates = []
-
   const add = (s) => {
     if (typeof s !== 'string') return
     const t = s.trim()
     if (!t) return
     candidates.push(t)
   }
-
   add(outer?.[0]?.[2]); add(outer?.[2]); add(outer?.[0]?.[0]?.[2])
   walkDeep(outer, (n) => {
     if (typeof n !== 'string') return
     const t = n.trim()
     if ((t.startsWith('[') || t.startsWith('{')) && t.length > 20) add(t)
   }, 0, 5)
-
   for (const s of candidates) {
     try {
       JSON.parse(s)
@@ -162,26 +164,21 @@ function findInnerPayloadString(outer) {
 }
 
 function parseStream(data) {
-  if (typeof data !== 'string' || !data.trim()) throw new Error('Respuesta vacÃ­a de Gemini')
-  if (/<html|<!doctype/i.test(data)) throw new Error('Gemini devolviÃ³ HTML (posible bloqueo).')
-
+  if (typeof data !== 'string' || !data.trim()) throw new Error('Respuesta vacía')
+  if (/<html|<!doctype/i.test(data)) throw new Error('Bloqueado')
   const chunks = Array.from(
     data.matchAll(/^\d+\r?\n([\s\S]+?)\r?\n(?=\d+\r?\n|$)/gm)
   ).map(m => m[1]).reverse()
-  if (!chunks.length) throw new Error('Respuesta invÃ¡lida de Gemini (sin chunks)')
-
+  if (!chunks.length) throw new Error('Sin datos')
   let best = { text: '', resumeArray: null, parsed: null }
-
   for (const c of chunks) {
     try {
       const outer = JSON.parse(c)
       const inner = findInnerPayloadString(outer)
       if (!inner) continue
       const parsed = JSON.parse(inner)
-
       const text = pickBestTextFromAny(parsed)
       const resumeArray = Array.isArray(parsed?.[1]) ? parsed[1] : null
-
       if (!best.parsed) {
         best = { text, resumeArray, parsed }
       } else if (text && text.length > (best.text?.length || 0)) {
@@ -189,8 +186,7 @@ function parseStream(data) {
       }
     } catch {}
   }
-
-  if (!best.parsed) throw new Error('Respuesta invÃ¡lida de Gemini (no parseable)')
+  if (!best.parsed) throw new Error('No parseable')
   const urls = new Set(extractImageUrlsFromText(data))
   walkDeep(best.parsed, (n, depth) => {
     if (depth > 6) return false
@@ -199,7 +195,6 @@ function parseStream(data) {
     if (!/^https:\/\//i.test(u)) return
     if (looksLikeImageUrl(u)) urls.add(u)
   }, 0, 7)
-
   let cleanText = (best.text || '').replace(/\*\*(.+?)\*\*/g, '*$1*').trim()
   if (!cleanText) {
     const accept = (t) => {
@@ -213,14 +208,12 @@ function parseStream(data) {
       .replace(/\*\*(.+?)\*\*/g, '*$1*')
       .trim()
   }
-
   return { text: cleanText, resumeArray: best.resumeArray, images: Array.from(urls) }
 }
 
 export async function ask(prompt, previousId = null) {
   const f = await ensureFetch()
-  if (typeof prompt !== 'string' || !prompt.trim()) throw new Error('Prompt es requerido')
-
+  if (typeof prompt !== 'string' || !prompt.trim()) throw new Error('Prompt requerido')
   let resumeArray = null
   if (previousId) {
     try {
@@ -228,19 +221,15 @@ export async function ask(prompt, previousId = null) {
       resumeArray = j?.resumeArray || null
     } catch {}
   }
-
   let lastErr = null
-
   for (let attempt = 1; attempt <= 3; attempt++) {
     try {
       const cookie = await getAnonCookie()
       const xsrf = await getXsrfToken(cookie)
-
       const payload = [[prompt.trim()], ['en-US'], resumeArray]
       const fReq = [null, JSON.stringify(payload)]
       const params = { 'f.req': JSON.stringify(fReq) }
       if (xsrf) params.at = xsrf
-
       const response = await f(
         'https://gemini.google.com/_/BardChatUi/data/assistant.lamda.BardFrontendService/StreamGenerate?hl=en-US&rt=c',
         {
@@ -254,12 +243,10 @@ export async function ask(prompt, previousId = null) {
           body: new URLSearchParams(params),
         }
       )
-
       if (!response.ok) {
         const textBody = await response.text().catch(() => '')
-        throw new Error(`${response.status} ${response.statusText} ${textBody || '(cuerpo vacÃ­o)'}`)
+        throw new Error(`${response.status} ${response.statusText}`)
       }
-
       const data = await response.text()
       const parsed = parseStream(data)
       const id = btoa2(JSON.stringify({ resumeArray: parsed.resumeArray }))
@@ -272,49 +259,5 @@ export async function ask(prompt, previousId = null) {
       }
     }
   }
-
-  throw lastErr || new Error('Error desconocido')
-}
-
-export async function downloadImages(urls, outDir = path.resolve(__dirname, '..', 'output')) {
-  const f = await ensureFetch()
-  if (!Array.isArray(urls) || urls.length === 0) return []
-  if (outDir && !fs.existsSync(outDir)) fs.mkdirSync(outDir, { recursive: true })
-  const saved = []
-
-  for (const url of urls) {
-    try {
-      if (typeof url !== 'string' || !/^https:\/\//i.test(url)) continue
-      const baseHeaders = {
-        'user-agent': UA,
-        accept: 'image/avif,image/webp,image/apng,image/*,*/*;q=0.8',
-        'accept-language': 'en-US,en;q=0.9',
-      }
-      let res = await f(url, { headers: baseHeaders })
-      if (!res.ok) res = await f(url, { headers: { ...baseHeaders, referer: 'https://gemini.google.com/' } })
-      if (!res.ok) continue
-
-      const buf = Buffer.from(await res.arrayBuffer())
-      const ct = (res.headers.get('content-type') || '').toLowerCase()
-      const extFromUrl = /\.(png|jpe?g|webp|gif)(\?|$)/i.exec(url)?.[1]?.toLowerCase()
-      const ext = (extFromUrl
-        ? (extFromUrl.startsWith('jp') ? 'jpg' : extFromUrl)
-        : (ct.includes('png') ? 'png' : ct.includes('webp') ? 'webp' : ct.includes('gif') ? 'gif' : 'jpg'))
-
-      if (!outDir) continue
-      const file = path.join(outDir, `gemini_${Date.now()}_${Math.random().toString(36).slice(2, 7)}.${ext}`)
-      fs.writeFileSync(file, buf)
-      saved.push(file)
-    } catch {}
-  }
-
-  return saved
-}
-
-export async function askForImages(prompt, previousId = null, options = {}) {
-  const outDir = options?.outDir
-  const result = await ask(prompt, previousId)
-  const images = Array.from(new Set(result.images || []))
-  const files = await downloadImages(images, outDir)
-  return { ...result, images, savedFiles: files }
+  throw lastErr || new Error('Error')
 }
