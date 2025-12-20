@@ -51,7 +51,10 @@ let handler = async (m, { conn, usedPrefix, command }) => {
 
     await conn.sendMessage(m.chat, {
       image: buffer,
-      caption: '✅ *Imagen mejorada con éxito*'
+      caption: '✅ *Imagen mejorada con éxito     // --- Botón agregado ---
+    const buttons = [
+      { buttonId: '.hd', buttonText: { displayText: '🐦‍🔥 mejorar mas' }, type: 1 }
+    ]*'
     }, { quoted: m })
 
     await m.react('✅')
