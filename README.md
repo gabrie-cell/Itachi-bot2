@@ -12,7 +12,7 @@
 
 Estos indicadores muestran el estado actualizado del proyecto en GitHub.
 
-![GitHub stars](https://img.shields.io/github/stars/sandovalwilkerson705-dotcom/MICHI_WA_BOT?style=for-the-badge&logo=github&color=yellow)
+![GitHub stars](https://img.shields.io/github/stars/WILKER-OFC/Michi wabot?style=for-the-badge&logo=github&color=yellow)
 ![GitHub forks](https://img.shields.io/github/forks/sandovalwilkerson705-dotcom/MICHI_WA_BOT?style=for-the-badge&logo=github&color=blue)
 ![GitHub last commit](https://img.shields.io/github/last-commit/sandovalwilkerson705-dotcom/MICHI_WA_BOT?style=for-the-badge&logo=github&color=green)
 
