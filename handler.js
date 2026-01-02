@@ -239,7 +239,7 @@ if (!isROwner && opts['self']) return
 if (opts['swonly'] && m.chat !== 'status@broadcast')  return
 if (typeof m.text !== 'string')
 m.text = ''
-// Funcion para setprimary By Ado
+// Funcion para setprimary By Wilker
 if (m.isGroup) {
   let chat = global.db.data.chats[m.chat];
   if (chat?.primaryBot && this?.user?.jid !== chat.primaryBot) {
