@@ -1,3 +1,6 @@
+//código de WILKER-OFC 
+//puto no quites créditos
+
 import fetch from "node-fetch";
 import fs from "fs";
 import path from "path";
