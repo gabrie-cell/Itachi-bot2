@@ -25,17 +25,17 @@ const defaultMenu = {
 🌤 Hola, soy %botname *( %tipo )*
 *%name*, %greeting
 
-🪪 *CANAL :* https://whatsapp.com/channel/0029Vb724SDHltY4qGU9QS3S
+🌴 *CANAL :* https://whatsapp.com/channel/0029Vb6nOKBD8SDp0aFtCD3R
 
 > 🥮 Fecha = *%date*
-> 🍿 Actividad = *%uptime*
+> 🌱 Actividad = *%uptime*
 %readmore
 `.trimStart(),
 
   header: '\n\`%category 🥞\`',
   body: '\`🧃\` *%cmd* %islimit %isPremium',
   footer: '',
-  after: '\n🍂 Creado por WILKER OFC.',
+  after: '\n🍂 Creado por DANI OFC.',
 }
 
 const handler = async (m, { conn, usedPrefix: _p }) => {
