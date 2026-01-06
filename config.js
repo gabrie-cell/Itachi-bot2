@@ -27,13 +27,13 @@ global.jadi = 'JadiBots'
 global.yukiJadibts = true
 
 global.namecanal = '❇️'
-global.idcanal = '120363403739366547@newsletter'
-global.idcanal2 = '120363403739366547@newsletter'
-global.canal = 'https://whatsapp.com/channel/0029Vb5pM031CYoMvQi2I02D'
-global.canalreg = '120363402895449162@newsletter'
+global.idcanal = '120363420590235387@newsletter'
+global.idcanal2 = '120363420590235387@newsletter'
+global.canal = 'https://whatsapp.com/channel/0029Vb6nOKBD8SDp0aFtCD3R'
+global.canalreg = '120363420590235387@newsletter'
 
 global.ch = {
-  ch1: '120363420941524030@newsletter'
+  ch1: '120363420590235387@newsletter'
 }
 
 global.multiplier = 69
